@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function exercise_000 {
+    mysql -u root -p -e "SHOW DATABASES; \
+    	     	     	 SHOW TABLES FROM computer; \
+			 SELECT * FROM computer.Product; \
+			 SELECT * FROM computer.PC;"
+}
+
+
 #https://sql-ex.ru/learn_exercises.php
 #Exercise: 1 (Serge I: 2002-09-30)
 #Find the model number, speed and hard drive
@@ -106,20 +114,47 @@ function exercise_007 {
 }
 function exercise_00701 {
     mysql -u root -p -e "USE computer; \
-    	     	     	 SELECT model, price FROM PC 
-    			 WHERE model = (SELECT model FROM Product 
-     			  		WHERE maker = 'B' AND type = 'PC')
-    			 UNION
-    			 SELECT model, price FROM Laptop 
-			 WHERE model = (SELECT model FROM Product 
-			       	        WHERE maker = 'B' AND type = 'Laptop')
-    		         UNION
-			 SELECT model, price FROM Printer 
-    			 WHERE model = (SELECT model FROM Product 
+    	     	     	 SELECT model, price FROM PC \
+    			 WHERE model = (SELECT model FROM Product \
+     			  		WHERE maker = 'B' AND type = 'PC') \
+    			 UNION \
+    			 SELECT model, price FROM Laptop \
+			 WHERE model = (SELECT model FROM Product \
+			       	        WHERE maker = 'B' AND type = 'Laptop') \
+    		         UNION \
+			 SELECT model, price FROM Printer \
+    			 WHERE model = (SELECT model FROM Product \
      			       	        WHERE maker = 'B' AND type = 'Printer');"
 }
 
+#https://sql-ex.ru/learn_exercises.php?LN=8
+#Exercise: 8 (Serge I: 2003-02-03)
+#Find the makers producing PCs but not laptops.
+function exercise_008 {
+    #mysql -u root -p -e "USE computer; \
+    #	     	     	 SELECT maker, type FROM Product \
+    #			 WHERE type = 'PC' OR type = 'Printer'";
+    #
+    
+    mysql -u root -p -e "USE computer; \
+    	     	         SELECT * FROM \
+			 (SELECT maker, type FROM Product WHERE type = 'PC') mm \
+			 LEFT JOIN Product \
+			  ON mm.maker = Product.maker \
+			 WHERE Product.type <> 'Laptop';"
 
+    
+#    mysql -u root -p -e "USE computer; \
+#			 SELECT Product.model, Product.maker, Laptop.price \
+#			 FROM Product JOIN Laptop \
+#			  ON Product.model = Laptop.model \
+#			 WHERE Product.maker LIKE 'B' \
+#   	     	         UNION \
+
+#    mysql -u root -p -e "USE computer; \
+#    	     	     	 SELECT t_pc.maker FROM \
+#			 (SELECT * FROM Product WHERE type='PC') t_pc;"
+}
 
 function printHelp {
     echo " --> ERROR in input arguments"
