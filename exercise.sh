@@ -7,6 +7,41 @@ function exercise_000 {
 			 SELECT * FROM computer.PC;"
 }
 
+#SELECT * FROM t1
+#LEFT JOIN t2 ON t1.id = t2.id
+#UNION
+#SELECT * FROM t1
+#RIGHT JOIN t2 ON t1.id = t2.id
+#The query above works for special cases where a FULL OUTER JOIN operation would not produce any duplicate rows.
+#The query above depends on the UNION set operator to remove duplicate rows introduced by the query pattern.
+#We can avoid introducing duplicate rows by using an anti-join pattern for the second query, and then
+#use a UNION ALL set operator to combine the two sets. In the more general case, where a
+#FULL OUTER JOIN would return duplicate rows, we can do this:
+#SELECT * FROM t1
+#LEFT JOIN t2 ON t1.id = t2.id
+#UNION ALL
+#SELECT * FROM t1
+#RIGHT JOIN t2 ON t1.id = t2.id
+#WHERE t1.id IS NULL
+function exercise_FULL {
+    mysql -u root -p -e "USE computer; \
+    	     	     	 SELECT * FROM Product AS pr \
+			 LEFT JOIN PC AS pc \
+			 ON pr.model = pc.model \
+			 UNION ALL \
+			 SELECT * FROM Product AS pr \
+			 RIGHT JOIN PC AS pc \
+			 ON pr.model = pc.model \
+			 WHERE pc.model IS NULL; \
+    	     	     	 SELECT * FROM Product \
+			 LEFT JOIN PC \
+			 ON Product.model = PC.model \
+			 UNION ALL \
+			 SELECT * FROM Product \
+			 RIGHT JOIN PC \
+			 ON Product.model = PC.model \
+			 WHERE Product.model IS NULL;"
+}
 
 #https://sql-ex.ru/learn_exercises.php
 #Exercise: 1 (Serge I: 2002-09-30)
@@ -131,29 +166,16 @@ function exercise_00701 {
 #Exercise: 8 (Serge I: 2003-02-03)
 #Find the makers producing PCs but not laptops.
 function exercise_008 {
-    #mysql -u root -p -e "USE computer; \
-    #	     	     	 SELECT maker, type FROM Product \
-    #			 WHERE type = 'PC' OR type = 'Printer'";
-    #
-    
     mysql -u root -p -e "USE computer; \
-    	     	         SELECT * FROM \
-			 (SELECT maker, type FROM Product WHERE type = 'PC') mm \
-			 LEFT JOIN Product \
-			  ON mm.maker = Product.maker \
-			 WHERE Product.type <> 'Laptop';"
-
-    
-#    mysql -u root -p -e "USE computer; \
-#			 SELECT Product.model, Product.maker, Laptop.price \
-#			 FROM Product JOIN Laptop \
-#			  ON Product.model = Laptop.model \
-#			 WHERE Product.maker LIKE 'B' \
-#   	     	         UNION \
-
-#    mysql -u root -p -e "USE computer; \
-#    	     	     	 SELECT t_pc.maker FROM \
-#			 (SELECT * FROM Product WHERE type='PC') t_pc;"
+    	     	     	 SELECT thetable.maker_pc FROM (SELECT * FROM (SELECT DISTINCT Product.maker AS maker_pc, Product.type AS type_pc FROM Product WHERE type = 'PC') AS pc \
+			 LEFT JOIN (SELECT DISTINCT Product.maker AS maker_la, Product.type AS type_la FROM Product WHERE type = 'Laptop') AS la \
+			 ON pc.maker_pc = la.maker_la \
+			 UNION ALL \
+    	     	     	 SELECT * FROM (SELECT DISTINCT Product.maker AS maker_pc, Product.type AS type_pc FROM Product WHERE type = 'PC') AS pc \
+			 RIGHT JOIN (SELECT DISTINCT Product.maker AS maker_la, Product.type AS type_la FROM Product WHERE type = 'Laptop') AS la \
+			 ON pc.maker_pc = la.maker_la \
+			 WHERE pc.maker_pc IS NULL) AS thetable \
+			 WHERE thetable.maker_la IS NULL;"
 }
 
 function printHelp {
