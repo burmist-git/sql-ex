@@ -1,7 +1,8 @@
 #!/bin/bash
 
 function exercise_000 {
-    mysql -u root -p -e "SHOW DATABASES; \
+    mysql -u root -p -e "TEE $outlog;
+			 SHOW DATABASES; \
     	     	     	 SHOW TABLES FROM computer; \
 			 SELECT * FROM computer.Product; \
 			 SELECT * FROM computer.PC;"
@@ -186,6 +187,10 @@ function printHelp {
 }
 
 MYSQLDBCREATOR='mysql_db_creator'
+outlog="out.log"
+username="exer_user"
+hostname="localhost"
+motp=111111
 
 if [ $# -eq 0 ]; then
     printHelp

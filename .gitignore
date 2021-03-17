@@ -5,3 +5,4 @@ book-sql/frontpage.pdf
 book-sql/frontpage/
 mysql_db_creator/
 tmp/
+out.log
