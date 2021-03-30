@@ -3,9 +3,26 @@
 function exercise_000 {
     mysql -u root -p -e "TEE $outlog;
 			 SHOW DATABASES; \
+			 SELECT COUNT(*) FROM (SELECT * FROM sys.version) as tmp; \
     	     	     	 SHOW TABLES FROM computer; \
 			 SELECT * FROM computer.Product; \
-			 SELECT * FROM computer.PC;"
+			 SELECT * FROM computer.PC; \
+			 SELECT COUNT(*) FROM (SELECT * FROM sys.version) as tmp; \
+    	     	     	 SHOW TABLES FROM ships; \
+			 "
+    #aero
+    #inc
+    #painting
+    #ships
+}
+
+function exercise_VER {
+    mysql -u root -p -e "SELECT * FROM sys.version"
+}
+
+#PRINT NULL (or space)
+function exercise_NULL {
+    mysql -u root -p -e "SELECT COUNT(*) FROM (SELECT * FROM sys.version) as tmp"
 }
 
 #SELECT * FROM t1
@@ -177,6 +194,109 @@ function exercise_008 {
 			 ON pc.maker_pc = la.maker_la \
 			 WHERE pc.maker_pc IS NULL) AS thetable \
 			 WHERE thetable.maker_la IS NULL;"
+}
+function exercise_00801 {
+    mysql -u root -p -e "USE computer; \
+    	     	     	 SELECT type FROM Product \
+			 WHERE type = 'Laptop';
+    	     	         SELECT DISTINCT maker, type \
+			 FROM Product \
+			 WHERE type IN ('PC') \
+			 AND maker IN \
+			 (SELECT maker FROM Product \
+			 WHERE maker = 'A' OR maker = 'B' OR maker = 'C' OR maker = 'E'); \
+    	     	         SELECT DISTINCT maker, type \
+			 FROM Product \
+			 WHERE type IN ('PC') \
+			 AND maker NOT IN \
+			 (SELECT maker FROM Product \
+			 WHERE type = 'Laptop');"
+}
+
+#Exercise: 9 (Serge I: 2002-11-02)
+#Find the makers of PCs with a processor speed of 450 MHz or more. Result set: maker. 
+function exercise_009 {
+    mysql -u root -p -e "USE computer; \
+			 SELECT DISTINCT Prod.maker FROM (SELECT * FROM Product WHERE type = 'PC') AS Prod LEFT JOIN (PC) \
+		         ON (Prod.model = PC.model) \
+			 WHERE PC.speed >= 450 "
+}
+function exercise_00901 {
+    mysql -u root -p -e "USE computer; \
+			 SELECT DISTINCT Product.maker FROM Product LEFT JOIN (PC) \
+		         ON (Product.model = PC.model) \
+			 WHERE PC.speed >= 450 "
+}
+
+#Exercise: 10 (Serge I: 2002-09-23)
+#Find the printer models having the highest price. Result set: model, price.
+function exercise_010 {
+    mysql -u root -p -e "USE computer; \
+    	     	         SELECT model, price FROM Printer \
+			 WHERE price >= (SELECT MAX(price) FROM Printer)"
+}
+function exercise_01001 {
+    mysql -u root -p -e "USE computer; \
+    	     	         SELECT model, price FROM Printer \
+			 ORDER BY price DESC;"
+}
+function exercise_01002 {
+    mysql -u root -p -e "USE computer; \
+    	     	     	 SELECT MAX(price) FROM Printer;"
+}
+
+#Exercise: 11 (Serge I: 2002-11-02)
+#Find out the average speed of PCs.
+function exercise_011 {
+    mysql -u root -p -e "USE computer; \
+    	     	         SELECT AVG(speed) FROM PC;"
+}
+
+#Exercise: 12 (Serge I: 2002-11-02)
+#Find out the average speed of the laptops priced over $1000.
+function exercise_012 {
+    mysql -u root -p -e "USE computer; \
+    	     	         SELECT AVG(Lap.speed) FROM (SELECT speed FROM Laptop WHERE price > 1000) AS Lap;"
+}
+
+#Exercise: 13 (Serge I: 2002-11-02)
+#Find out the average speed of the PCs produced by maker A.
+function exercise_013 {
+    mysql -u root -p -e "USE computer; \
+    	     	         SELECT AVG(tmp.speed) FROM (SELECT PC.speed FROM PC JOIN Product \
+			 ON PC.model=Product.model 
+			 WHERE maker = 'A') as tmp;"
+}
+
+#Exercise: 14 (Serge I: 2002-11-05)
+#For the ships in the Ships table that have at least 10 guns, get the class, name, and country.
+function exercise_014 {
+    mysql -u root -p -e "USE ships; \
+                         SELECT Ships.class, Ships.name, Classes.country FROM Ships JOIN Classes \
+			 ON Ships.class = Classes.class \
+			 WHERE Classes.numGuns>=10;"
+}
+
+#Exercise: 15 (Serge I: 2003-02-03)
+#Get hard drive capacities that are identical for two or more PCs.
+#Result set: hd.
+function exercise_015 {
+    mysql -u root -p -e "USE computer; \
+    	     	     	 SELECT tmp.hd FROM (SELECT hd, COUNT(hd) AS hd_count \
+    	     	         FROM PC \
+			 GROUP BY hd) AS tmp \
+			 WHERE tmp.hd_count >= 2;"
+}
+
+#Exercise: 16 (Serge I: 2003-02-03)
+#Get pairs of PC models with identical speeds and the same RAM capacity. Each resulting pair should be displayed only once, i.e. (i, j) but not (j, i).
+#Result set: model with the bigger number, model with the smaller number, speed, and RAM. 
+function exercise_016 {
+    mysql -u root -p -e "USE computer; \
+    	     	     	 SELECT tmp.hd FROM (SELECT hd, COUNT(hd) AS hd_count \
+    	     	         FROM PC \
+			 GROUP BY hd) AS tmp \
+			 WHERE tmp.hd_count >= 2;"
 }
 
 function printHelp {
