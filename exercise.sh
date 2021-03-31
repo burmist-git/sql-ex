@@ -287,16 +287,42 @@ function exercise_015 {
 			 GROUP BY hd) AS tmp \
 			 WHERE tmp.hd_count >= 2;"
 }
+#Exercise: 15 (Serge I: 2003-02-03)
+#Get hard drive capacities that are identical for two or more PCs.
+#Result set: hd.
+function exercise_01501 {
+    mysql -u root -p -e "USE computer; \
+    	     	     	 SELECT hd, COUNT(hd) AS hd_count FROM PC GROUP BY hd;"
+}
 
 #Exercise: 16 (Serge I: 2003-02-03)
 #Get pairs of PC models with identical speeds and the same RAM capacity. Each resulting pair should be displayed only once, i.e. (i, j) but not (j, i).
 #Result set: model with the bigger number, model with the smaller number, speed, and RAM. 
 function exercise_016 {
     mysql -u root -p -e "USE computer; \
-    	     	     	 SELECT tmp.hd FROM (SELECT hd, COUNT(hd) AS hd_count \
-    	     	         FROM PC \
-			 GROUP BY hd) AS tmp \
-			 WHERE tmp.hd_count >= 2;"
+    	     	     	 SELECT DISTINCT pc1.model, pc2.model, pc1.speed, pc1.ram FROM \
+			 (SELECT model, speed, ram FROM PC) AS pc1, \
+			 (SELECT model, speed, ram FROM PC) AS pc2 \
+			 WHERE pc1.speed = pc2.speed AND pc1.ram = pc2.ram AND pc1.model > pc2.model;"
+}
+
+#Exercise: 17 (Serge I: 2003-02-03)
+#Get the laptop models that have a speed smaller than the speed of any PC.
+#Result set: type, model, speed.
+function exercise_017 {
+    mysql -u root -p -e "USE computer; \
+    	     	     	 SELECT DISTINCT Product.type, Laptop.model, Laptop.speed FROM Laptop JOIN Product \
+			 WHERE Product.type='Laptop' AND Laptop.speed < (SELECT MIN(speed) FROM PC);"
+}
+
+#Exercise: 18 (Serge I: 2003-02-03)
+#Find the makers of the cheapest color printers.
+#Result set: maker, price.
+function exercise_018 {
+    mysql -u root -p -e "USE computer; \
+    	     	     	 SELECT Product.maker, Printer.price FROM Printer JOIN Product \
+			 ON Printer.model = Product.model \
+			 WHERE Printer.color='y' AND Printer.price <= (SELECT MIN(price) FROM Printer WHERE color='y');"
 }
 
 function printHelp {
