@@ -392,9 +392,67 @@ function exercise_020 {
 #[i.e. the primary key consists of (point, date)], write a query displaying cash flow data (point, date, income, expense).
 #Use Income_o and Outcome_o tables.
 function exercise_029 {
-    mysql -u root -p -e "USE inc; \
-    	     	         SELECT * FROM Income_o JOIN Outcome_o \
-		         ON Income_o.point = Outcome_o.point AND Income_o.date = Outcome_o.date;"
+    #mysql -u root -p -e "USE inc; \
+    #	     	         SELECT * FROM Income_o JOIN Outcome_o \
+    #		         ON Income_o.point = Outcome_o.point AND Income_o.date = Outcome_o.date;"
+    #mysql -u root -p -e "USE inc; \
+    # 	     	         SELECT * FROM Income_o; \
+    #			 SELECT * FROM Outcome_o; \
+    #	     	     	 SELECT Income_o.point, Income_o.date AS date_inc, Income_o.inc, Outcome_o.out \
+    #		         FROM Income_o JOIN Outcome_o \
+    #			 ON Income_o.point = Outcome_o.point;"
+    #mysql -u root -p -e "USE inc; \
+    #	     	         SELECT DISTINCT * FROM Outcome_o JOIN (SELECT Income_o.point, Income_o.date AS date_inc, Income_o.inc, Outcome_o.out \
+    #		         FROM Income_o JOIN Outcome_o \
+    #			 ON Income_o.point = Outcome_o.point) AS tmp \
+    #			 ON Outcome_o.date = tmp.date_inc;"
+    #mysql -u root -p -e "USE inc; \
+    #	     	     	 SELECT Income_o.point, Income_o.date AS date_inc, Income_o.inc, Outcome_o.out \
+    #		         FROM Income_o JOIN Outcome_o \
+    #			 ON Income_o.point = Outcome_o.point;"
+    #mysql -u root -p -e "USE inc; \
+    # 	     	     	 SELECT * \
+    #		         FROM Income_o JOIN Outcome_o \
+    #			 ON Income_o.date = Outcome_o.date;"
+    #mysql -u root -p -e "USE inc; \
+    # 	     	         SELECT * FROM Income_o; \
+    # 			 SELECT * FROM Outcome_o;"
+    #echo "UNION"
+    #mysql -u root -p -e "USE inc; \
+    # 	     	         SELECT point, date FROM Income_o \
+    #			 UNION
+    #			 SELECT point, date FROM Outcome_o;" | nl
+    #echo "Income_o"
+    #mysql -u root -p -e "USE inc; \
+    # 	     	         SELECT * FROM Income_o;" | nl
+    #echo "Outcome_o"
+    #mysql -u root -p -e "USE inc; \
+    # 			 SELECT * FROM Outcome_o;" | nl
+    #mysql -u root -p -e "USE inc; \
+    #	     	     	 SELECT point, date FROM Outcome_o \
+    #			 UNION \
+    #			 SELECT point, date FROM Income_o;" | nl
+    #mysql -u root -p -e "USE inc; \
+    #	                 SELECT pd.point AS point, pd.date AS date, \
+    #			 Income_o.point AS point_inc, Income_o.inc FROM \
+    #                    (SELECT point, date FROM Outcome_o UNION \
+    #			 SELECT point, date FROM Income_o) AS pd \
+    #			 LEFT JOIN Income_o \
+    #			 ON (pd.date = Income_o.date)" | nl
+    #mysql -u root -p -e "USE inc; \
+    #	                 SELECT pd.point AS point, pd.date AS date, \
+    #			 Income_o.point AS point_inc, Income_o.inc FROM \
+    #                    (SELECT point, date FROM Outcome_o UNION \
+    #   		 SELECT point, date FROM Income_o) AS pd \
+    #			 LEFT JOIN Income_o \
+    #			 ON (pd.date = Income_o.date AND pd.point = Income_o.point)" | nl
+#SELECT pdi.point AS point, pdi.date AS date, pdi.inc AS inc, Outcome_o.out AS out FROM (SELECT pd.point AS point, pd.date AS date, Income_o.inc FROM (SELECT point, date FROM Outcome_o
+UNION
+SELECT point, date FROM Income_o) AS pd
+LEFT JOIN Income_o
+ON (pd.date = Income_o.date AND pd.point = Income_o.point)) AS pdi
+LEFT JOIN Outcome_o ON (pdi.date = Outcome_o.date AND pdi.point = Outcome_o.point)
+
 }
 
 function printHelp {
