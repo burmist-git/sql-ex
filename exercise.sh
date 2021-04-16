@@ -325,6 +325,78 @@ function exercise_018 {
 			 WHERE Printer.color='y' AND Printer.price <= (SELECT MIN(price) FROM Printer WHERE color='y');"
 }
 
+#Exercise: 19 (Serge I: 2003-02-13)
+#For each maker having models in the Laptop table, find out the average screen size of the laptops he produces.
+#Result set: maker, average screen size.
+function exercise_019 {
+    mysql -u root -p -e "USE computer; \
+    	     	     	 SELECT tmp.maker AS Maker, AVG(tmp.screen) AS Avg_screen FROM \
+			 (SELECT Product.maker AS maker, Laptop.screen AS screen FROM Laptop JOIN Product \
+			 ON Laptop.model = Product.model) AS tmp \
+			 GROUP BY tmp.maker;"
+}
+
+#Exercise: 20 (Serge I: 2003-02-13)
+#Find the makers producing at least three distinct models of PCs.
+#Result set: maker, number of PC models.
+function exercise_020 {
+    mysql -u root -p -e "USE compute; \
+    	     	     	 SELECT maker, COUNT(model) AS Count_model FROM Product \
+			 WHERE type='PC' \
+			 GROUP BY maker \
+			 HAVING COUNT(model)>=3"
+}
+
+#Exercise: 21 (Serge I: 2003-02-13)
+#Find out the maximum PC price for each maker having models in the PC table. Result set: maker, maximum price.
+#function exercise_021 {
+#asAS    mysql -u root -p -e "USE computer; \
+#    ASAA	     	     	 SELECT Product.maker AS maker, COUNT(model) AS Count_model FROM PC JOIN Product ON PC.model = Product.model;"
+#}
+
+#Exercise: 22 (Serge I: 2003-02-13)
+#For each value of PC speed that exceeds 600 MHz, find out the average price of PCs with identical speeds.
+#Result set: speed, average price. 
+
+#Exercise: 23 (Serge I: 2003-02-14)
+#Get the makers producing both PCs having a speed of 750 MHz or higher and laptops with a speed of 750 MHz or higher.
+#Result set: maker
+
+#Exercise: 24 (Serge I: 2003-02-03)
+#List the models of any type having the highest price of all products present in the database. 
+
+#Exercise: 25 (Serge I: 2003-02-14)
+#Find the printer makers also producing PCs with the lowest RAM capacity and the highest processor speed of all PCs having the lowest RAM capacity.
+#Result set: maker.
+#SELECT DISTINCT maker FROM Product 
+#WHERE type='Printer' AND maker IN (SELECT DISTINCT Product.maker FROM (SELECT model, ram, speed from PC
+#WHERE ram<=(SELECT MIN(ram) FROM PC)
+#AND
+#speed >= (SELECT MAX(tmp.speed) FROM (SELECT speed from PC
+#WHERE ram<=(SELECT MIN(ram) FROM PC)) as tmp)) as tmp
+#JOIN Product ON tmp.model=Product.model)
+
+#Exercise: 26 (Serge I: 2003-02-14)
+#Find out the average price of PCs and laptops produced by maker A.
+#Result set: one overall average price for all items.
+
+#Exercise: 27 (Serge I: 2003-02-03)
+#Find out the average hard disk drive capacity of PCs produced by makers who also manufacture printers.
+#Result set: maker, average HDD capacity.
+
+#Exercise: 28 (Serge I: 2012-05-04)
+#Using Product table, find out the number of makers who produce only one model. 
+
+#Exercise: 29 (Serge I: 2003-02-14)
+#Under the assumption that receipts of money (inc) and payouts (out) are registered not more than once a day for each collection point
+#[i.e. the primary key consists of (point, date)], write a query displaying cash flow data (point, date, income, expense).
+#Use Income_o and Outcome_o tables.
+function exercise_029 {
+    mysql -u root -p -e "USE inc; \
+    	     	         SELECT * FROM Income_o JOIN Outcome_o \
+		         ON Income_o.point = Outcome_o.point AND Income_o.date = Outcome_o.date;"
+}
+
 function printHelp {
     echo " --> ERROR in input arguments"
     echo " -h  : print help"
