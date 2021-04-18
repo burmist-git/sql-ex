@@ -6,3 +6,4 @@ book-sql/frontpage/
 mysql_db_creator/
 tmp/
 out.log
+inc_db_tmp.info

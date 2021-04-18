@@ -446,13 +446,42 @@ function exercise_029 {
     #   		 SELECT point, date FROM Income_o) AS pd \
     #			 LEFT JOIN Income_o \
     #			 ON (pd.date = Income_o.date AND pd.point = Income_o.point)" | nl
-#SELECT pdi.point AS point, pdi.date AS date, pdi.inc AS inc, Outcome_o.out AS out FROM (SELECT pd.point AS point, pd.date AS date, Income_o.inc FROM (SELECT point, date FROM Outcome_o
-UNION
-SELECT point, date FROM Income_o) AS pd
-LEFT JOIN Income_o
-ON (pd.date = Income_o.date AND pd.point = Income_o.point)) AS pdi
-LEFT JOIN Outcome_o ON (pdi.date = Outcome_o.date AND pdi.point = Outcome_o.point)
+    #mysql -u root -p -e "USE inc; \
+    #	     	     	 SELECT pdi.point AS point, pdi.date AS date, pdi.inc AS inc, Outcome_o.out AS out FROM \
+    #			 (SELECT pd.point AS point, pd.date AS date, Income_o.inc FROM \
+    #			 (SELECT point, date FROM Outcome_o \
+    #			 UNION \
+    #			 SELECT point, date FROM Income_o) AS pd \
+    #			 LEFT JOIN Income_o \
+    #			 ON (pd.date = Income_o.date AND pd.point = Income_o.point)) AS pdi \
+    #			 LEFT JOIN Outcome_o ON (pdi.date = Outcome_o.date AND pdi.point = Outcome_o.point)";
+    mysql -u root -p -e "USE inc; \
+    	     	     	 SELECT pdi.point AS point, pdi.date AS date, pdi.inc, Outcome_o.out FROM \
+    	     	     	 (SELECT pd.point AS point, pd.date AS date, Income_o.inc FROM \
+			 (SELECT point, date FROM Outcome_o \
+    			 UNION SELECT point, date FROM Income_o) AS pd \
+			 LEFT JOIN Income_o ON (pd.date = Income_o.date AND pd.point = Income_o.point)) AS pdi \
+			 LEFT JOIN Outcome_o ON (pdi.date = Outcome_o.date AND pdi.point = Outcome_o.point)";
+}SELECT * FROM (SELECT Income.point AS point, Income.date AS date, 
+SUM(Income.inc) AS tot_inc FROM Income
+GROUP BY point, date) AS tmp_i
+FULL JOIN
+(SELECT Outcome.point AS point, Outcome.date AS date, 
+SUM(Outcome.out) AS tot_out FROM Outcome
+GROUP BY point, date) AS tmp_o
+ON (tmp_i.point = tmp_o.point AND tmp_i.date = tmp_o.date )
+WHERE tmp_i.point IS NOT NULL AND tmp_o.point IS NOT NULL;
 
+#Exercise: 30 (Serge I: 2003-02-14)
+#Under the assumption that receipts of money (inc) and payouts (out) can be registered any number of
+#times a day for each collection point [i.e. the code column is the primary key], display a table with
+#one corresponding row for each operating date of each collection point.
+#Result set: point, date, total payout per day (out), total money intake per day (inc).
+#Missing values are considered to be NULL. 
+function exercise_030 {
+    mysql -u root -p -e "USE inc;
+    	     	     	 SELECT Outcome.point AS point, Outcome.date AS date, SUM(Outcome.out) AS sum_out FROM Outcome \
+			 GROUP BY point, date;"
 }
 
 function printHelp {
